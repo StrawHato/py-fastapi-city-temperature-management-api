@@ -33,3 +33,12 @@ def update_city_by_id(db: Session, city_id: int, city: CityCreate):
     db.commit()
     db.refresh(city_to_update)
     return city_to_update
+
+
+def delete_city_by_id(db: Session, city_id: int):
+    city_to_delete = get_city(db, city_id)
+    if not city_to_delete:
+        raise HTTPException(status_code=404, detail="City not found")
+    db.delete(city_to_delete)
+    db.commit()
+    return city_to_delete

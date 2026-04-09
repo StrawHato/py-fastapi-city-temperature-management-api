@@ -34,3 +34,11 @@ def update_city(
     db: Session = Depends(get_db)
 ):
     return crud.update_city_by_id(city_id=city_id, city=city, db=db)
+
+
+@router.delete("/cities/{city_id}/", response_model=City)
+def delete_city(
+    city_id: int,
+    db: Session = Depends(get_db)
+):
+    return crud.delete_city_by_id(city_id=city_id, db=db)
