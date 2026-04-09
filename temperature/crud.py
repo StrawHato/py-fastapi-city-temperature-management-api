@@ -28,3 +28,9 @@ async def fetch_temperature(city_name: str):
 
 def get_temperature_list(db: Session):
     return db.query(models.Temperature).all()
+
+
+def get_city_temperature(db: Session, city_id: int):
+    return (
+        db.query(models.Temperature).filter(models.Temperature.city_id == city_id).all()
+    )
