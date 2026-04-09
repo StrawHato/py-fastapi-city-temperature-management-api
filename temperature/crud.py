@@ -24,3 +24,7 @@ async def fetch_temperature(city_name: str):
         )
         response.raise_for_status()
         return response.json()
+
+
+def get_temperature_list(db: Session):
+    return db.query(models.Temperature).all()

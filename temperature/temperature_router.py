@@ -28,3 +28,8 @@ async def update_temperature(db: Session = Depends(get_db)):
     db.commit()
 
     return {"status": "updated"}
+
+
+@router.get("/temperatures/", response_model=list[Temperature])
+def get_temperature_list(db: Session = Depends(get_db)):
+    return db.query(models.Temperature).all()
