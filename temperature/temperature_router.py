@@ -1,4 +1,6 @@
+import asyncio
 from datetime import timezone, datetime
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -17,8 +19,14 @@ router = APIRouter()
 async def update_temperature(db: Session = Depends(get_db)):
     cities = db.query(City).all()
 
-    for city in cities:
-        data = await crud.fetch_temperature(city.name)
+    tasks = [crud.fetch_temperature(city.name) for city in cities]
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    for city, data in zip(cities, results):
+        if isinstance(data, Exception):
+            print(f"Error for {city.name}: {data}")
+            continue
 
         temperature = models.Temperature(
             city_id=city.id,
@@ -26,20 +34,17 @@ async def update_temperature(db: Session = Depends(get_db)):
             temperature=data["current"]["temp_c"]
         )
         db.add(temperature)
+
     db.commit()
 
     return {"status": "updated"}
 
 
 @router.get("/temperatures/", response_model=list[Temperature])
-def get_temperature_list(db: Session = Depends(get_db)):
+def get_temperature_list(
+    city_id: Optional[int] = None,
+    db: Session = Depends(get_db)
+):
+    if city_id:
+        return crud.get_city_temperature(db, city_id)
     return crud.get_temperature_list(db)
-
-
-@router.get("/temperatures/{city_id}/", response_model=list[Temperature])
-def get_temperature_by_city_id(city_id: int, db: Session = Depends(get_db)):
-    city = get_city(city_id=city_id, db=db)
-    if city is None:
-        raise HTTPException(status_code=404, detail="City not found")
-
-    return crud.get_city_temperature(city_id=city.id, db=db)
