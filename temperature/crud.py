@@ -1,0 +1,26 @@
+import os
+
+import httpx
+from dotenv import load_dotenv
+from sqlalchemy.orm import Session
+
+from temperature import models
+
+
+load_dotenv()
+
+API_KEY = os.getenv("API_KEY")
+URL = "https://api.weatherapi.com/v1/current.json"
+
+
+async def fetch_temperature(city_name: str):
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            URL,
+            params={
+                "key": API_KEY,
+                "q": city_name
+            }
+        )
+        response.raise_for_status()
+        return response.json()
