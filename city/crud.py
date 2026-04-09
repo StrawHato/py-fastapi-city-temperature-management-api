@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from city import models
@@ -21,3 +22,14 @@ def get_cities(db: Session):
 
 def get_city(db: Session, city_id: int):
     return db.query(models.City).get(city_id)
+
+
+def update_city_by_id(db: Session, city_id: int, city: CityCreate):
+    city_to_update = get_city(db, city_id)
+    if not city_to_update:
+        raise HTTPException(status_code=404, detail="City not found")
+    city_to_update.name = city.name
+    city_to_update.additional_info = city.additional_info
+    db.commit()
+    db.refresh(city_to_update)
+    return city_to_update

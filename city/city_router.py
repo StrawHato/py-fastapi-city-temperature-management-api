@@ -25,3 +25,12 @@ def get_specific_city(city_id: int, db: Session = Depends(get_db)):
     if not city:
         raise HTTPException(status_code=404, detail="City not found")
     return crud.get_city(city_id=city_id, db=db)
+
+
+@router.put("/cities/{city_id}/", response_model=City)
+def update_city(
+    city_id: int,
+    city: CityCreate,
+    db: Session = Depends(get_db)
+):
+    return crud.update_city_by_id(city_id=city_id, city=city, db=db)
