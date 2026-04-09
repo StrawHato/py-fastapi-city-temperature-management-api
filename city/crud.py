@@ -13,3 +13,7 @@ def create_city(db: Session, city: CityCreate):
     db.commit()
     db.refresh(db_city)
     return db_city
+
+
+def get_cities(db: Session):
+    return db.query(models.City).all()
