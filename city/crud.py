@@ -17,3 +17,7 @@ def create_city(db: Session, city: CityCreate):
 
 def get_cities(db: Session):
     return db.query(models.City).all()
+
+
+def get_city(db: Session, city_id: int):
+    return db.query(models.City).get(city_id)
